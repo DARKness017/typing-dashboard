@@ -88,18 +88,45 @@
       color-scheme: dark;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      scrollbar-width: thin;
-      scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ---------- custom scrollbars ---------- */
+    :root { --sb-a: var(--sky); --sb-b: var(--primary); --sb-hover-a: var(--gold); --sb-hover-b: var(--primary); }
+
+    /* Firefox (it ignores ::-webkit-scrollbar) */
+    @supports (-moz-appearance: none) {
+      * { scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
     }
 
-    *::-webkit-scrollbar { width: 8px; height: 8px; }
-    *::-webkit-scrollbar-track { background: var(--scroll-track); border-radius: 8px; }
-    *::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 8px; }
-    *::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
+    /* Chrome / Edge / Yandex / Safari */
+    ::-webkit-scrollbar { width: 14px; height: 14px; }
+    ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+    ::-webkit-scrollbar-corner { background: transparent; }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      min-height: 44px; min-width: 44px;
+      border-radius: 999px;
+      border: 4px solid transparent;           /* floating look: gap around the pill */
+      background-clip: padding-box;
+      background-image: linear-gradient(180deg, var(--sb-a), var(--sb-b));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    }
+    ::-webkit-scrollbar-thumb:horizontal { background-image: linear-gradient(90deg, var(--sb-a), var(--sb-b)); }
+    ::-webkit-scrollbar-thumb:hover { background-image: linear-gradient(180deg, var(--sb-hover-a), var(--sb-hover-b)); border-width: 3px; }
+    ::-webkit-scrollbar-thumb:horizontal:hover { background-image: linear-gradient(90deg, var(--sb-hover-a), var(--sb-hover-b)); }
+    ::-webkit-scrollbar-thumb:active { background-image: linear-gradient(180deg, var(--primary), var(--primary-dark)); }
+
+    /* tables / textareas get a soft inset track */
+    .table-scroll::-webkit-scrollbar, .data-textarea::-webkit-scrollbar { width: 14px; height: 14px; }
+    .table-scroll::-webkit-scrollbar-track, .data-textarea::-webkit-scrollbar-track {
+      background: var(--bg-card-alt);
+      border-left: 1px solid var(--border);
+    }
+    .table-scroll::-webkit-scrollbar-track:horizontal { border-left: 0; border-top: 1px solid var(--border); }
+    .table-scroll::-webkit-scrollbar-corner, .data-textarea::-webkit-scrollbar-corner { background: var(--bg-card-alt); }
 
     html { scroll-behavior: smooth; }
     ::selection { background: var(--primary); color: #fff; }
@@ -123,7 +150,7 @@
     .container {
       position: relative;
       z-index: 2;
-      max-width: 1320px;
+      max-width: 1480px;
       margin: 0 auto;
       padding: 0 32px 80px;
     }
@@ -182,7 +209,7 @@
       padding: 12px 0;
     }
     .header-inner {
-      max-width: 1320px;
+      max-width: 1480px;
       margin: 0 auto;
       padding: 0 32px;
       display: flex;
@@ -403,7 +430,30 @@
     @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ---------- paste boxes ---------- */
-    .paste-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+    /* ---------- no-gap grids: rows always fill the full width (5 items) ---------- */
+    .paste-grid, .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+    .paste-grid > *, .kpi-grid > * { grid-column: span 2; min-width: 0; }
+    .paste-grid > :nth-child(n+4), .kpi-grid > :nth-child(n+4) { grid-column: span 3; }  /* 3 + 2 layout */
+
+    @media (min-width: 1380px) {                       /* wide screens: all five in one row */
+      .paste-grid, .kpi-grid { grid-template-columns: repeat(5, 1fr); }
+      .paste-grid > *, .kpi-grid > *,
+      .paste-grid > :nth-child(n+4), .kpi-grid > :nth-child(n+4) { grid-column: span 1; }
+      .kpi-card { padding: 18px; }
+      .kpi-card .metric-label { font-size: 9px; letter-spacing: 0.05em; }
+      .kpi-card .metric-val { font-size: 18px; }
+    }
+    @media (max-width: 999px) {                        /* tablets: 2 per row, last one full width */
+      .paste-grid, .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .paste-grid > *, .kpi-grid > *,
+      .paste-grid > :nth-child(n+4), .kpi-grid > :nth-child(n+4) { grid-column: span 1; }
+      .paste-grid > :last-child:nth-child(odd), .kpi-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+    }
+    @media (max-width: 620px) {                        /* phones: 1 per row */
+      .paste-grid, .kpi-grid { grid-template-columns: 1fr; }
+      .paste-grid > :last-child:nth-child(odd), .kpi-grid > :last-child:nth-child(odd) { grid-column: auto; }
+    }
+
     .paste-box {
       background: var(--bg-card-alt);
       border: 1px solid var(--border);
@@ -437,7 +487,7 @@
     .status-msg.invalid { color: var(--setback-text); font-weight: 600; }
 
     /* ---------- KPI cards ---------- */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 26px; }
+    .kpi-grid { margin-bottom: 26px; }
 
     .kpi-card {
       position: relative;
@@ -466,7 +516,7 @@
     .kpi-grid .kpi-card:nth-child(3) { animation-delay: 0.16s; }
     .kpi-grid .kpi-card:nth-child(4) { animation-delay: 0.24s; }
 
-    .kpi-card-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; position: relative; z-index: 1; }
+    .kpi-card-top { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 14px; position: relative; z-index: 1; }
     .student-title { display: flex; align-items: center; gap: 10px; font-family: "Fraunces", serif; font-weight: 600; font-size: 16px; line-height: 1.25; min-width: 0; }
 
     .attempt-pill {
@@ -542,7 +592,9 @@
     .legend-item:hover { background: var(--bg-card-alt); border-color: var(--border); transform: translateY(-2px); }
 
     /* ---------- tables ---------- */
-    .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap: 22px; }
+    .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr)); gap: 22px; }
+    .table-card .kpi-card-top { flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .tables-grid > .table-card:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* odd one out fills the row */
 
     .table-card {
       background: var(--bg-card-alt);
@@ -553,28 +605,28 @@
       animation: rise 0.8s cubic-bezier(0.19, 1, 0.22, 1) both;
     }
     .table-scroll {
-      max-height: 390px; overflow-y: auto;
+      max-height: 390px; overflow: auto;
       border: 1px solid var(--border);
       border-radius: 14px; margin-top: 12px;
       background: var(--bg-input);
     }
-    table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; font-variant-numeric: tabular-nums; }
+    table { width: 100%; min-width: 0; border-collapse: collapse; font-size: 12.5px; text-align: left; font-variant-numeric: tabular-nums; }
     thead th {
       position: sticky; top: 0;
       background: var(--pale);
       color: var(--text-muted);
-      font-weight: 600; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.1em;
-      padding: 12px 10px; border-bottom: 1px solid var(--border); z-index: 2;
+      font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.06em;
+      padding: 12px 8px; border-bottom: 1px solid var(--border); z-index: 2; white-space: nowrap;
     }
     :root[data-theme="dark"] thead th { background: #10305a; }
-    tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); transition: background 0.2s ease; }
+    tbody td { padding: 9px 8px; white-space: nowrap; border-bottom: 1px solid var(--border); transition: background 0.2s ease; }
     tbody tr { transition: background 0.25s ease; }
     tbody tr:hover { background: var(--accent-soft); }
     tbody tr:last-child td { border-bottom: none; }
 
     .badge {
       display: inline-block; padding: 3px 11px; border-radius: 999px;
-      font-size: 11px; font-weight: 600; font-family: "Inter", sans-serif;
+      font-size: 11px; font-weight: 600; font-family: "Inter", sans-serif; white-space: nowrap;
     }
     .badge-progress { background: var(--progress-bg); color: var(--progress-text); }
     .badge-setback { background: var(--setback-bg); color: var(--setback-text); }
