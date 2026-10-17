@@ -402,7 +402,7 @@
       font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
       color: var(--text-muted); font-weight: 600;
     }
-    .highlight-pill .hl-val { font-size: 25px; font-weight: 600; color: var(--text-main); line-height: 1.2; }
+    .highlight-pill .hl-val { font-variant-numeric: tabular-nums; font-size: 25px; font-weight: 600; color: var(--text-main); line-height: 1.2; }
     .highlight-pill .hl-sub { font-size: 12.5px; color: var(--accent); font-weight: 600; }
 
     /* ---------- section cards ---------- */
@@ -634,6 +634,124 @@
 
     .empty-state { padding: 28px; text-align: center; color: var(--text-muted); font-size: 13px; }
 
+
+    /* =========================================================
+       Feature 1 - Practice heatmap
+       ========================================================= */
+    :root { --hm-empty: #eaf3fb; --hm-weekend: rgba(143, 203, 251, 0.16); }
+    :root[data-theme="dark"] { --hm-empty: rgba(143, 203, 251, 0.09); --hm-weekend: rgba(143, 203, 251, 0.06); }
+
+    .hm-insights { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .hm-chip {
+      background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 16px;
+      padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0;
+      transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hm-chip:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: var(--shadow); }
+    .hm-chip-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 600; }
+    .hm-chip-val { font-family: "Fraunces", Georgia, serif; font-size: 22px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+    .hm-chip-sub { font-size: 12px; font-weight: 600; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .heatmap-wrapper {
+      position: relative;
+      border: 1px solid var(--border); border-radius: 20px;
+      background: linear-gradient(180deg, var(--bg-card-alt), transparent 140%);
+      padding: 14px 14px 10px;
+    }
+    .heatmap-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 4px; }
+    #heatmapSvg { display: block; width: 100%; height: auto; overflow: visible; }
+
+    #heatmapSvg .hm-month { font: 700 12px "Inter", sans-serif; fill: var(--text-main); }
+    #heatmapSvg .hm-wd    { font: 600 10px "Inter", sans-serif; fill: var(--text-muted); }
+    #heatmapSvg .hm-dom   { font: 600 11px "Inter", sans-serif; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
+    #heatmapSvg .hm-name  { font: 600 14px "Fraunces", Georgia, serif; fill: var(--text-main); }
+    #heatmapSvg .hm-rowsub { font: 500 11px "Inter", sans-serif; fill: var(--text-muted); }
+    #heatmapSvg .hm-warn  { fill: var(--setback-text); font-weight: 700; }
+    #heatmapSvg .hm-num   { font: 700 11.5px "Inter", sans-serif; pointer-events: none; font-variant-numeric: tabular-nums; }
+    #heatmapSvg .hm-weekend { fill: var(--hm-weekend); }
+
+    .hm-cell {
+      transform-box: fill-box; transform-origin: center;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      animation: hmIn 0.7s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+    }
+    .heatmap-wrapper:not(.in-view) .hm-cell { animation-play-state: paused; }
+    .hm-on { cursor: pointer; }
+    .hm-on:hover { transform: scale(1.14); filter: drop-shadow(0 6px 10px rgba(6, 19, 35, 0.3)); }
+    .hm-gap { fill: var(--hm-empty); stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
+    .hm-out { fill: var(--hm-empty); opacity: 0.45; }
+    .hm-gap:hover, .hm-out:hover { stroke: var(--sky); }
+    @keyframes hmIn { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+
+    .hm-legend {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px;
+      margin-top: 14px; font-size: 12px; color: var(--text-muted); font-weight: 600;
+    }
+    .hm-legend i { width: 16px; height: 16px; border-radius: 5px; display: inline-block; background: var(--primary); }
+    .hm-legend i.sw-gap { background: var(--hm-empty); border: 1px dashed var(--text-muted); opacity: 0.8; }
+    .hm-legend .sep { width: 1px; height: 16px; background: var(--border); margin: 0 6px; }
+
+    /* =========================================================
+       Feature 3 - floating glass side navigation
+       ========================================================= */
+    #inputSection, #kpiContainer, #sec-chart, #sec-heatmap, #sec-tables { scroll-margin-top: 92px; }
+
+    .side-nav {
+      position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
+      z-index: 900;
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 12px 8px;
+      border-radius: 999px;
+      background: var(--header-glass);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      --p: 0;
+    }
+    .side-nav::before, .side-nav::after {
+      content: ""; position: absolute; left: 50%; top: 26px; width: 2px; margin-left: -1px; border-radius: 2px;
+    }
+    .side-nav::before { bottom: 26px; background: var(--border); }
+    .side-nav::after {
+      height: calc((100% - 52px) * var(--p));
+      background: linear-gradient(180deg, var(--gold), var(--primary));
+      transition: height 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .side-nav a {
+      position: relative; z-index: 1;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; outline: none;
+    }
+    .sn-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--bg-main);
+      border: 2px solid var(--text-muted);
+      opacity: 0.7;
+      transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+    }
+    .side-nav a:hover .sn-dot, .side-nav a:focus-visible .sn-dot { transform: scale(1.3); border-color: var(--primary); opacity: 1; }
+    .side-nav a.active .sn-dot {
+      transform: scale(1.35); opacity: 1;
+      border-color: var(--gold);
+      background: linear-gradient(135deg, var(--gold), var(--primary));
+      box-shadow: 0 0 0 4px rgba(216, 176, 108, 0.25), 0 0 16px rgba(34, 96, 214, 0.55);
+    }
+    .sn-label {
+      position: absolute; right: calc(100% + 14px); top: 50%;
+      transform: translate(8px, -50%);
+      padding: 6px 13px; border-radius: 999px;
+      background: var(--cta-grad); color: #fff;
+      border: 1px solid rgba(216, 176, 108, 0.45);
+      font-size: 12px; font-weight: 600; white-space: nowrap;
+      opacity: 0; pointer-events: none;
+      box-shadow: 0 12px 24px -10px rgba(6, 19, 35, 0.55);
+      transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .side-nav a:hover .sn-label, .side-nav a:focus-visible .sn-label { opacity: 1; transform: translate(0, -50%); }
+    @media (max-width: 1180px) { .side-nav { display: none; } }
+
     @media (max-width: 720px) {
       .container, .header-inner { padding-left: 18px; padding-right: 18px; }
       .hero { padding-top: 190px; }
@@ -753,7 +871,7 @@
     <section class="kpi-grid" id="kpiContainer"></section>
 
     <!-- STEP 3: INTERACTIVE WPM LINE CHART -->
-    <section class="section-card reveal">
+    <section class="section-card reveal" id="sec-chart">
       <div class="section-header">
         <h2>2. WPM Progression Across Valid Attempts</h2>
         <div class="filter-bar" id="chartFilterBar"></div>
@@ -765,14 +883,37 @@
       <div class="legend-bar" id="chartLegend"></div>
     </section>
 
-    <!-- STEP 4: FOUR INDIVIDUAL RESULTS TABLES -->
-    <section class="section-card reveal">
+    <!-- PRACTICE HEATMAP -->
+    <section class="section-card reveal" id="sec-heatmap">
       <div class="section-header">
-        <h2>3. Complete Attempt Logs, Setbacks &amp; Practice Day Gaps</h2>
+        <h2>3. Practice Heatmap &mdash; Consistency vs. Gaps</h2>
+        <div class="filter-bar" id="heatmapModeBar"></div>
+      </div>
+      <p class="section-note">Every square is one calendar day. The darker the square, the stronger that day (more attempts, or higher WPM in WPM mode). Dashed squares are days without practice between two sessions &mdash; the gaps behind our research question.</p>
+      <div class="hm-insights" id="heatmapInsights"></div>
+      <div class="heatmap-wrapper" id="heatmapWrapper">
+        <div class="heatmap-scroll"><svg id="heatmapSvg" role="img" aria-label="Practice heatmap by student and calendar day"></svg></div>
+        <div class="chart-tooltip" id="heatmapTooltip"></div>
+      </div>
+      <div class="hm-legend" id="heatmapLegend"></div>
+    </section>
+
+    <!-- STEP 4: INDIVIDUAL RESULTS TABLES -->
+    <section class="section-card reveal" id="sec-tables">
+      <div class="section-header">
+        <h2>4. Complete Attempt Logs, Setbacks &amp; Practice Day Gaps</h2>
       </div>
       <div class="tables-grid" id="tablesContainer"></div>
     </section>
   </div>
+
+  <nav class="side-nav" id="sideNav" aria-label="Jump to section">
+    <a href="#inputSection" data-target="inputSection" aria-label="Input"><span class="sn-label">Input</span><span class="sn-dot"></span></a>
+    <a href="#kpiContainer" data-target="kpiContainer" aria-label="Metrics"><span class="sn-label">Metrics</span><span class="sn-dot"></span></a>
+    <a href="#sec-chart" data-target="sec-chart" aria-label="Chart"><span class="sn-label">Chart</span><span class="sn-dot"></span></a>
+    <a href="#sec-heatmap" data-target="sec-heatmap" aria-label="Heatmap"><span class="sn-label">Heatmap</span><span class="sn-dot"></span></a>
+    <a href="#sec-tables" data-target="sec-tables" aria-label="Tables"><span class="sn-label">Tables</span><span class="sn-dot"></span></a>
+  </nav>
 
   <script>
     const STUDENT_COLORS = ["#d4a23f", "#3b8ef0", "#1fb893", "#e5578f", "#8b5cf6"];
@@ -882,6 +1023,7 @@
         validAttempts.push({
           attempt: attemptNum,
           date: dateDisplay,
+          utcMs: dateObj ? dateObj.utcMs : null,
           wpm: wpmVal,
           accPct: accPct,
           mins: !isNaN(minsVal) ? minsVal : null,
@@ -918,7 +1060,11 @@
       renderKpiCards();
       renderChartFilters();
       renderLineChart();
+      renderHeatmap(true);
       renderStudentTables();
+      prepareCounters(document.getElementById("highlightsStrip"));
+      prepareCounters(document.getElementById("kpiContainer"));
+      prepareCounters(document.getElementById("heatmapInsights"));
     }
 
     function renderHighlightsStrip() {
@@ -1191,6 +1337,7 @@
       const hide = sec.style.display !== "none";
       sec.style.display = hide ? "none" : "block";
       document.getElementById("toggleInputsBtn").textContent = hide ? "Show Paste Boxes" : "Hide Paste Boxes";
+      if (window.updateSideNav) window.updateSideNav();
     }
 
     function clearAllBoxes() {
@@ -1232,6 +1379,290 @@
       });
       buildDashboard();
     }
+
+    // =====================================================
+    // Feature 2 - animated counters
+    // =====================================================
+    const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const COUNTER_SELECTOR = ".metric-val, .hl-val, .hm-chip-val";
+    const counterIO = ("IntersectionObserver" in window) ? new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        counterIO.unobserve(e.target);
+        runCounter(e.target);
+      });
+    }, { threshold: 0.4 }) : null;
+
+    function prepareCounters(root) {
+      if (!root || REDUCED_MOTION || !counterIO) return;
+      root.querySelectorAll(COUNTER_SELECTOR).forEach(el => {
+        const txt = el.textContent.trim();
+        const m = txt.match(/^([+\-]?)(\d+(?:\.\d+)?)(.*)$/);
+        if (!m) return;                                   // "N/A", "—" ... stay as they are
+        const group = el.closest(".kpi-card, .highlight-pill, .hm-chip") || el;
+        const idxInGroup = [...group.querySelectorAll(COUNTER_SELECTOR)].indexOf(el);
+        const groupIdx = group.parentNode ? [...group.parentNode.children].indexOf(group) : 0;
+        el.dataset.final = txt;
+        el.dataset.prefix = m[1];
+        el.dataset.num = m[2];
+        el.dataset.dec = (m[2].split(".")[1] || "").length;
+        el.dataset.suffix = m[3];
+        el.dataset.delay = groupIdx * 90 + idxInGroup * 110;
+        el.setAttribute("aria-label", txt);
+        el.textContent = m[1] + (0).toFixed(+el.dataset.dec) + m[3];
+        counterIO.observe(el);
+      });
+    }
+
+    function runCounter(el) {
+      const target = parseFloat(el.dataset.num), dec = +el.dataset.dec;
+      const pre = el.dataset.prefix, suf = el.dataset.suffix;
+      const start = performance.now() + (+el.dataset.delay || 0), dur = 1400;
+      function frame(now) {
+        const t = Math.min(1, Math.max(0, (now - start) / dur));
+        const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);          // easeOutExpo
+        el.textContent = pre + (target * eased).toFixed(dec) + suf;
+        if (t < 1) requestAnimationFrame(frame); else el.textContent = el.dataset.final;
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // =====================================================
+    // Feature 1 - practice heatmap (rows = students, columns = calendar days)
+    // =====================================================
+    let heatmapMode = "count";
+    let heatmapModel = null;
+    const DAY_MS = 86400000;
+    const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const WEEKDAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const WEEKDAY_LETTER = ["S", "M", "T", "W", "T", "F", "S"];
+
+    function fmtDMY(ms) {
+      const d = new Date(ms);
+      return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
+    }
+    function fmtDM(ms) {
+      const d = new Date(ms);
+      return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    }
+    function textOnColor(hex) {
+      const n = parseInt(hex.slice(1), 16);
+      const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+      const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+      return L > 0.3 ? "#0a2038" : "#ffffff";
+    }
+
+    function setHeatmapMode(mode) { heatmapMode = mode; renderHeatmap(false); }
+
+    function buildHeatmapModel() {
+      const rows = parsedStudents.filter(s => !s.error).map(st => {
+        const map = new Map();
+        st.attempts.forEach(a => {
+          if (a.utcMs === null || a.utcMs === undefined) return;
+          let d = map.get(a.utcMs);
+          if (!d) { d = { n: 0, sum: 0, best: 0, mins: 0 }; map.set(a.utcMs, d); }
+          d.n++; d.sum += a.wpm; d.best = Math.max(d.best, a.wpm);
+          if (a.mins !== null) d.mins += a.mins;
+        });
+        const days = [...map.keys()].sort((a, b) => a - b);
+        let maxGap = 0, gapFrom = null, gapTo = null;
+        for (let i = 1; i < days.length; i++) {
+          const g = Math.round((days[i] - days[i - 1]) / DAY_MS);
+          if (g > maxGap) { maxGap = g; gapFrom = days[i - 1]; gapTo = days[i]; }
+        }
+        return { st, map, days, maxGap, gapFrom, gapTo };
+      }).filter(r => r.days.length);
+      if (!rows.length) return null;
+
+      const minMs = Math.min(...rows.map(r => r.days[0]));
+      const maxMs = Math.max(...rows.map(r => r.days[r.days.length - 1]));
+      const total = Math.round((maxMs - minMs) / DAY_MS) + 1;
+      let maxN = 1, minAvg = Infinity, maxAvg = -Infinity;
+      rows.forEach(r => r.map.forEach(d => {
+        d.avg = d.sum / d.n;
+        maxN = Math.max(maxN, d.n); minAvg = Math.min(minAvg, d.avg); maxAvg = Math.max(maxAvg, d.avg);
+      }));
+      return { rows, minMs, maxMs, total, maxN, minAvg, maxAvg, worstGap: Math.max(...rows.map(r => r.maxGap)) };
+    }
+
+    function heatLevel(d, m) {
+      const t = heatmapMode === "count"
+        ? Math.sqrt(d.n / m.maxN)
+        : (m.maxAvg === m.minAvg ? 1 : 0.25 + 0.75 * ((d.avg - m.minAvg) / (m.maxAvg - m.minAvg)));
+      return Math.max(1, Math.min(4, Math.ceil(t * 4 - 1e-9)));
+    }
+
+    function renderHeatmap(full) {
+      const svg = document.getElementById("heatmapSvg");
+      const insightsEl = document.getElementById("heatmapInsights");
+      const legendEl = document.getElementById("heatmapLegend");
+      document.getElementById("heatmapModeBar").innerHTML = `
+        <button class="filter-btn ${heatmapMode === "count" ? "active" : ""}" onclick="setHeatmapMode('count')">Attempts per day</button>
+        <button class="filter-btn ${heatmapMode === "wpm" ? "active" : ""}" onclick="setHeatmapMode('wpm')">Avg WPM per day</button>`;
+
+      const m = heatmapModel = buildHeatmapModel();
+      if (!m) {
+        svg.innerHTML = ""; svg.removeAttribute("viewBox"); legendEl.innerHTML = "";
+        insightsEl.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">No dated attempts to plot yet.</div>`;
+        return;
+      }
+
+      // ---- geometry: columns always stretch to fill the full width ----
+      const LW = 225, PAD_R = 6, GAP = 4, ROW_GAP = 8;
+      let W = 1100;
+      let cw = (W - LW - PAD_R - GAP * (m.total - 1)) / m.total;
+      if (cw < 9) { cw = 9; W = LW + PAD_R + m.total * (cw + GAP) - GAP; }
+      const ch = Math.max(30, Math.min(cw, 38));
+      const headerH = cw >= 18 ? 58 : 42;
+      const H = headerH + m.rows.length * (ch + ROW_GAP) + 2;
+      const colX = c => LW + c * (cw + GAP);
+      const f = v => v.toFixed(1);
+      let out = "";
+
+      // ---- header: weekend bands, weekday letters, day numbers, months ----
+      const bandTop = cw >= 18 ? headerH - 40 : headerH - 24;
+      for (let c = 0; c < m.total; c++) {
+        const ms = m.minMs + c * DAY_MS, dt = new Date(ms);
+        const wd = dt.getUTCDay(), dom = dt.getUTCDate(), cx = colX(c) + cw / 2;
+        if (wd === 0 || wd === 6) out += `<rect class="hm-weekend" x="${f(colX(c) - GAP / 2)}" y="${bandTop}" width="${f(cw + GAP)}" height="${H - bandTop}" rx="8"/>`;
+        if (cw >= 18) out += `<text class="hm-wd" x="${f(cx)}" y="${headerH - 26}" text-anchor="middle">${WEEKDAY_LETTER[wd]}</text>`;
+        if (cw >= 16 || c % 2 === 0 || dom === 1) out += `<text class="hm-dom" x="${f(cx)}" y="${headerH - 11}" text-anchor="middle">${dom}</text>`;
+        if (c === 0 || dom === 1) out += `<text class="hm-month" x="${f(colX(c))}" y="12">${MONTH_NAMES[dt.getUTCMonth()]}${c === 0 ? " " + dt.getUTCFullYear() : ""}</text>`;
+      }
+
+      // ---- rows ----
+      m.rows.forEach((r, ri) => {
+        const y = headerH + ri * (ch + ROW_GAP), color = r.st.color;
+        const gapTxt = r.days.length > 1 ? `max gap ${r.maxGap} d` : "single day";
+        const isWorst = r.maxGap > 0 && r.maxGap === m.worstGap;
+        out += `<circle cx="7" cy="${f(y + ch * 0.33)}" r="5" fill="${color}"/>`;
+        out += `<text class="hm-name" x="20" y="${f(y + ch * 0.44)}">${escapeHtml(r.st.name)}</text>`;
+        out += `<text class="hm-rowsub" x="20" y="${f(y + ch * 0.88)}">${r.days.length} active day${r.days.length > 1 ? "s" : ""} &middot; <tspan class="${isWorst ? "hm-warn" : ""}">${gapTxt}</tspan></text>`;
+
+        for (let c = 0; c < m.total; c++) {
+          const ms = m.minMs + c * DAY_MS, d = r.map.get(ms), x = colX(c);
+          const geo = `data-r="${ri}" data-c="${c}" x="${f(x)}" y="${f(y)}" width="${f(cw)}" height="${f(ch)}" rx="${f(Math.min(cw, ch) * 0.22)}"`;
+          const delay = Math.round(c * 14 + ri * 70);
+          if (d) {
+            const lvl = heatLevel(d, m), op = [0.3, 0.5, 0.75, 1][lvl - 1];
+            out += `<rect class="hm-cell hm-on" ${geo} fill="${color}" fill-opacity="${op}" style="animation-delay:${delay}ms"/>`;
+            if (cw >= 26) {
+              const label = heatmapMode === "count" ? d.n : Math.round(d.avg);
+              out += `<text class="hm-num" x="${f(x + cw / 2)}" y="${f(y + ch / 2)}" text-anchor="middle" dominant-baseline="central" fill="${lvl >= 3 ? textOnColor(color) : "var(--text-main)"}">${label}</text>`;
+            }
+          } else {
+            const inRange = ms >= r.days[0] && ms <= r.days[r.days.length - 1];
+            out += `<rect class="hm-cell ${inRange ? "hm-gap" : "hm-out"}" ${geo} style="animation-delay:${delay}ms"/>`;
+          }
+        }
+      });
+
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.style.minWidth = Math.min(W, 780) + "px";
+      svg.innerHTML = out;
+
+      // ---- legend ----
+      const steps = [0.3, 0.5, 0.75, 1].map(o => `<i style="opacity:${o}"></i>`).join("");
+      legendEl.innerHTML = `<span>${heatmapMode === "count" ? "Fewer attempts" : "Slower"}</span>${steps}<span>${heatmapMode === "count" ? "More attempts" : "Faster"}</span>
+        <span class="sep"></span><i class="sw-gap"></i><span>No practice (gap)</span>`;
+
+      if (!full) return;
+
+      // ---- insight chips ----
+      const mostConsistent = [...m.rows].sort((a, b) => b.days.length - a.days.length || a.maxGap - b.maxGap)[0];
+      const longest = [...m.rows].sort((a, b) => b.maxGap - a.maxGap)[0];
+      const teamDay = new Map();
+      m.rows.forEach(r => r.map.forEach((d, ms) => {
+        let t = teamDay.get(ms);
+        if (!t) { t = { n: 0, k: 0 }; teamDay.set(ms, t); }
+        t.n += d.n; t.k++;
+      }));
+      let busiest = null;
+      teamDay.forEach((t, ms) => { if (!busiest || t.n > busiest.n) busiest = { ms, n: t.n, k: t.k }; });
+      const coverage = Math.round((teamDay.size / m.total) * 100);
+
+      insightsEl.innerHTML = `
+        <div class="hm-chip">
+          <span class="hm-chip-label">Most consistent</span>
+          <span class="hm-chip-val">${mostConsistent.days.length} active days</span>
+          <span class="hm-chip-sub" style="color:${mostConsistent.st.color};">${escapeHtml(mostConsistent.st.name)}</span>
+        </div>
+        <div class="hm-chip">
+          <span class="hm-chip-label">Longest break</span>
+          <span class="hm-chip-val">${longest.maxGap > 0 ? longest.maxGap + " days" : "No gaps"}</span>
+          <span class="hm-chip-sub" style="color:${longest.st.color};">${longest.maxGap > 0 ? `${escapeHtml(longest.st.name)} &middot; ${fmtDM(longest.gapFrom)} &rarr; ${fmtDM(longest.gapTo)}` : escapeHtml(longest.st.name)}</span>
+        </div>
+        <div class="hm-chip">
+          <span class="hm-chip-label">Busiest day</span>
+          <span class="hm-chip-val">${busiest.n} attempts</span>
+          <span class="hm-chip-sub">${fmtDMY(busiest.ms)} &middot; ${busiest.k} student${busiest.k > 1 ? "s" : ""}</span>
+        </div>
+        <div class="hm-chip">
+          <span class="hm-chip-label">Team coverage</span>
+          <span class="hm-chip-val">${coverage}% of days</span>
+          <span class="hm-chip-sub">${teamDay.size} of ${m.total} days had practice</span>
+        </div>`;
+    }
+
+    function heatTipHtml(ri, c) {
+      const m = heatmapModel, r = m.rows[ri], ms = m.minMs + c * DAY_MS, d = r.map.get(ms);
+      const head = `<strong style="color:${r.st.color};">${escapeHtml(r.st.name)}</strong><br>${WEEKDAY_FULL[new Date(ms).getUTCDay()]}, ${fmtDMY(ms)}<br>`;
+      if (d) return head + `Attempts: <strong>${d.n}</strong><br>Avg WPM: <strong>${d.avg.toFixed(1)}</strong> &middot; Best: <strong>${d.best}</strong>` + (d.mins ? `<br>Practice time: ${d.mins} min` : "");
+      if (ms < r.days[0]) return head + "Not started yet";
+      if (ms > r.days[r.days.length - 1]) return head + "No attempts logged";
+      let prev = r.days[0];
+      r.days.forEach(day => { if (day <= ms) prev = day; });
+      return head + `No practice &middot; ${Math.round((ms - prev) / DAY_MS)} day(s) since last session`;
+    }
+
+    (function initHeatmapEvents() {
+      const svg = document.getElementById("heatmapSvg"), tip = document.getElementById("heatmapTooltip"), wrap = document.getElementById("heatmapWrapper");
+      svg.addEventListener("mousemove", e => {
+        const t = e.target.closest(".hm-cell");
+        if (!t || !heatmapModel) { tip.style.display = "none"; return; }
+        tip.innerHTML = heatTipHtml(+t.dataset.r, +t.dataset.c);
+        tip.style.display = "block";
+        const rect = wrap.getBoundingClientRect();
+        let x = e.clientX - rect.left + 16, y = e.clientY - rect.top + 16;
+        if (x + tip.offsetWidth > rect.width - 8) x = e.clientX - rect.left - tip.offsetWidth - 16;
+        if (y + tip.offsetHeight > rect.height - 8) y = e.clientY - rect.top - tip.offsetHeight - 16;
+        tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+      });
+      svg.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+      if ("IntersectionObserver" in window) {
+        const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { wrap.classList.add("in-view"); io.disconnect(); } }), { threshold: 0.15 });
+        io.observe(wrap);
+      } else wrap.classList.add("in-view");
+    })();
+
+    // =====================================================
+    // Feature 3 - floating side navigation with scroll-spy
+    // =====================================================
+    (function initSideNav() {
+      const nav = document.getElementById("sideNav");
+      if (!nav) return;
+      const items = [...nav.querySelectorAll("a")].map(a => ({ a, el: document.getElementById(a.dataset.target) }));
+      items.forEach(({ a, el }) => a.addEventListener("click", e => {
+        e.preventDefault();
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }));
+
+      function update() {
+        const probe = window.innerHeight * 0.4;
+        const shown = items.filter(it => it.el && it.el.offsetParent !== null);       // hidden sections (e.g. paste boxes) drop out
+        items.forEach(it => { it.a.style.display = shown.includes(it) ? "" : "none"; });
+        let current = null;
+        shown.forEach(it => { if (it.el.getBoundingClientRect().top <= probe) current = it; });
+        if (shown.length && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 6) current = shown[shown.length - 1];
+        items.forEach(it => it.a.classList.toggle("active", it === current));
+        const idx = current ? shown.indexOf(current) : -1;
+        nav.style.setProperty("--p", shown.length > 1 && idx >= 0 ? idx / (shown.length - 1) : 0);
+      }
+      window.updateSideNav = update;
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    })();
 
     // ---------- Novara-style UI polish ----------
     (function () {
